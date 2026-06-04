@@ -8,33 +8,18 @@ load_dotenv()
 app = FastAPI()
 
 MONGO_URL = os.getenv("MONGO_URL")
+DATABASE_NAME = os.getenv("MONGO_DATABASE")
 
 client = MongoClient(MONGO_URL)
-
-db = client["negocio"]
-clientes = db["clientes"]
+db = client[DATABASE_NAME]
 
 @app.get("/")
 def home():
-    return {"mensaje": "API funcionando"}
-
-@app.get("/clientes")
-def obtener_clientes():
-    data = []
-
-    for cliente in clientes.find():
-        cliente["_id"] = str(cliente["_id"])
-        data.append(cliente)
-
-    return data
-
-@app.post("/clientes")
-def crear_cliente():
-    nuevo = {
-        "nombre": "Juan",
-        "telefono": "099999999"
+    return {
+        "status": "ok",
+        "message": "API funcionando"
     }
 
-    clientes.insert_one(nuevo)
-
-    return {"mensaje": "Cliente creado"}
+@app.get("/clientes")
+def clientes():
+    return list(db.clientes.find({}, {"_id": 0}))
